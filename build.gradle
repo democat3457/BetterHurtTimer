@@ -76,9 +76,9 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     if(isSponge) {
-        compile 'org.spongepowered:mixin:0.8'
+        compile 'org.spongepowered:mixin:0.8.3'
     }else{
-        embed('org.spongepowered:mixin:0.8') {
+        embed('org.spongepowered:mixin:0.8.3') {
             exclude module: 'launchwrapper'
         }
     }
