@@ -4,10 +4,13 @@ import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.ISpecialArmor;
+
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 
+@Debug(export = true)
 @Mixin(ISpecialArmor.ArmorProperties.class)
 public abstract class DamageSpecialArmorMixin {
 
@@ -44,14 +48,30 @@ public abstract class DamageSpecialArmorMixin {
         }
     }
 
-    @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraftforge/common/ISpecialArmor$ArmorProperties;Priority:I", value = "FIELD", shift = At.Shift.BEFORE, ordinal = 2), locals = LocalCapture.CAPTURE_FAILEXCEPTION, remap = false)
+    @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Ljava/util/ArrayList;toArray([Ljava/lang/Object;)[Ljava/lang/Object;", value = "INVOKE"), locals = LocalCapture.PRINT, remap = false)
+    private static void probe(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info) {
+    }
+
+    @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraftforge/common/ISpecialArmor$ArmorProperties;Priority:I", value = "FIELD", shift = At.Shift.BEFORE, ordinal = 0), locals = LocalCapture.PRINT, remap = false)
+    private static void probe2(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info) {
+    }
+
+    @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraftforge/common/ISpecialArmor$ArmorProperties;Priority:I", value = "FIELD", shift = At.Shift.BEFORE, ordinal = 2), locals = LocalCapture.PRINT, remap = false)
     private static void applyRatio(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info) {
         damageAlt -= damageAlt * ratioTemp;
         ratioTemp = 0;
     }
 
+    // @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraftforge/common/ISpecialArmor$ArmorProperties;AbsorbRatio:D", value = "FIELD", shift = At.Shift.BEFORE, ordinal = 0), locals = LocalCapture.CAPTURE_FAILEXCEPTION, remap = false)
+    // @Surrogate
+    // private static void storeValues(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info, double totalArmor, double totalToughness, ArrayList<ISpecialArmor.ArmorProperties> dmgVals, ISpecialArmor.ArmorProperties[] props, int level, double ratio, ISpecialArmor.ArmorProperties[] var14, int var15, int var16, ISpecialArmor.ArmorProperties prop) {
+    //     absorbTemp = prop.AbsorbRatio;
+    //     damageTemp = damage;
+    //     ratioTemp = ratio;
+    // }
+
     @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraftforge/common/ISpecialArmor$ArmorProperties;AbsorbRatio:D", value = "FIELD", shift = At.Shift.BEFORE, ordinal = 0), locals = LocalCapture.CAPTURE_FAILEXCEPTION, remap = false)
-    private static void storeValues(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info, double totalArmor, double totalToughness, ArrayList<ISpecialArmor.ArmorProperties> dmgVals, ISpecialArmor.ArmorProperties props[], int level, double ratio, ISpecialArmor.ArmorProperties var14[], int var15, int var16, ISpecialArmor.ArmorProperties prop) {
+    private static void storeValues(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info, double totalArmor, double totalToughness, ArrayList<ISpecialArmor.ArmorProperties> dmgVals, ISpecialArmor.ArmorProperties props[], int level, ISpecialArmor.ArmorProperties slotLoopProp, ItemArmor slotLoopArmor, double ratio, ISpecialArmor.ArmorProperties var14[], int var15, int var16, ISpecialArmor.ArmorProperties prop) {
         absorbTemp = prop.AbsorbRatio;
         damageTemp = damage;
         ratioTemp = ratio;
